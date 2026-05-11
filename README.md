@@ -2,6 +2,16 @@
 
 中文 | [English](#english-guide)
 
+## 小白一键版
+
+推荐直接使用图形化一键配置页面：
+
+- 在线版：<https://boji1334.github.io/cc-switch-codex-setup/>
+- Release 下载版：<https://github.com/boji1334/cc-switch-codex-setup/releases/latest>
+- GitHub 仓库：<https://github.com/boji1334/cc-switch-codex-setup>
+
+打开页面后输入 API Key，点击「一键导入到 CC Switch」，确认导入并重启 Codex 即可。
+
 > 本教程用于在 Windows、macOS 和 Ubuntu 上安装 CC Switch，并把 Codex 配置到指定 API 服务。默认供应商名称为 `boji1334`，API Key 请填写我单独提供给你的 Key。
 
 ## 一键配置
@@ -192,6 +202,16 @@ API Key 属于敏感信息，不要发到公开群、Issue、截图或 GitHub �
 # English Guide
 
 [中文](#cc-switch-codex-配置教程) | English
+
+## One-Click Version
+
+The easiest option is the graphical one-click setup page:
+
+- Online page: <https://boji1334.github.io/cc-switch-codex-setup/>
+- Release download: <https://github.com/boji1334/cc-switch-codex-setup/releases/latest>
+- GitHub repository: <https://github.com/boji1334/cc-switch-codex-setup>
+
+Open the page, enter your API Key, click `Import to CC Switch`, confirm the import, and restart Codex.
 
 > This guide helps you install CC Switch on Windows, macOS, or Ubuntu and configure Codex with the provided API service. The default provider name is `boji1334`. Use the API Key I provide separately.
 

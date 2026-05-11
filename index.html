@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CC Switch Codex 一键配置</title>
+  <link rel="icon" href="assets/avatar.jpg">
+  <meta property="og:title" content="CC Switch Codex 一键配置">
+  <meta property="og:description" content="输入 API Key，一键导入 Codex 配置到 CC Switch。">
+  <meta property="og:image" content="https://raw.githubusercontent.com/boji1334/cc-switch-codex-setup/main/assets/avatar.jpg">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --panel: #ffffff;
+      --ink: #1f2933;
+      --muted: #64748b;
+      --line: #d9dee8;
+      --primary: #1769e0;
+      --primary-strong: #0d4fb8;
+      --accent: #0f8b8d;
+      --warn: #9a5b12;
+      --success: #177245;
+      --shadow: 0 22px 55px rgba(31, 41, 51, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(15, 139, 141, 0.10), transparent 32%),
+        linear-gradient(315deg, rgba(23, 105, 224, 0.10), transparent 38%),
+        var(--bg);
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .shell {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 6px 18px rgba(31, 41, 51, 0.18);
+      flex: 0 0 auto;
+    }
+
+    .brand-name {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .brand-link {
+      display: block;
+      max-width: 70vw;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .lang {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      flex: 0 0 auto;
+    }
+
+    .lang button {
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--muted);
+      background: transparent;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .lang button.active {
+      color: white;
+      background: var(--ink);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 1px solid rgba(217, 222, 232, 0.88);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-main {
+      padding: 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 16px 0 0;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .setup-card {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #c8d0dc;
+      border-radius: 8px;
+      padding: 0 14px;
+      color: var(--ink);
+      background: #fbfcfe;
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(23, 105, 224, 0.12);
+    }
+
+    .icon-button {
+      min-width: 68px;
+      min-height: 46px;
+      border: 1px solid #c8d0dc;
+      border-radius: 8px;
+      color: var(--ink);
+      background: #f7f9fc;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 0.6fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 18px;
+      color: white;
+      background: var(--primary);
+      font: inherit;
+      font-weight: 850;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .button:hover {
+      background: var(--primary-strong);
+      text-decoration: none;
+    }
+
+    .button.secondary {
+      border: 1px solid #c8d0dc;
+      color: var(--ink);
+      background: white;
+    }
+
+    .button.secondary:hover {
+      background: #f7f9fc;
+    }
+
+    .status {
+      min-height: 44px;
+      margin-top: 14px;
+      border: 1px solid #d8e8df;
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: var(--success);
+      background: #effaf4;
+      font-size: 14px;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .status.warn {
+      border-color: #eed8b6;
+      color: var(--warn);
+      background: #fff7e9;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .meta {
+      min-height: 74px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+    }
+
+    .meta span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .meta strong {
+      display: block;
+      margin-top: 6px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    .side {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .portrait {
+      min-height: 310px;
+      background:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(31, 41, 51, 0.46)),
+        url("assets/avatar.jpg") center / cover;
+    }
+
+    .side-body {
+      padding: 20px;
+      background: #182232;
+      color: white;
+      flex: 1;
+    }
+
+    .side-body h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.5;
+    }
+
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      color: #182232;
+      background: #f7cc71;
+      font-weight: 900;
+    }
+
+    .links {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      color: white;
+      background: rgba(255, 255, 255, 0.08);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .links a:hover {
+      background: rgba(255, 255, 255, 0.14);
+      text-decoration: none;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    [data-lang="en"] .zh,
+    [data-lang="zh"] .en {
+      display: none;
+    }
+
+    @media (max-width: 820px) {
+      .shell {
+        width: min(100% - 22px, 720px);
+        padding-top: 16px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-main {
+        padding: 20px;
+      }
+
+      .actions,
+      .meta-grid,
+      .links {
+        grid-template-columns: 1fr;
+      }
+
+      .brand-link {
+        max-width: 56vw;
+      }
+
+      .portrait {
+        min-height: 240px;
+      }
+    }
+  </style>
+</head>
+<body data-lang="zh">
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img class="avatar" src="assets/avatar.jpg" alt="Boji avatar">
+        <div>
+          <div class="brand-name">CC Switch Codex Setup</div>
+          <a class="brand-link" href="https://github.com/boji1334/cc-switch-codex-setup" target="_blank" rel="noreferrer">github.com/boji1334/cc-switch-codex-setup</a>
+        </div>
+      </div>
+      <div class="lang" aria-label="Language">
+        <button type="button" class="active" data-set-lang="zh">中文</button>
+        <button type="button" data-set-lang="en">EN</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="panel panel-main">
+        <div class="zh">
+          <h1>一键把 Codex 配到 CC Switch</h1>
+          <p class="lead">输入我提供给你的 API Key，点击导入按钮，系统会打开 CC Switch 的确认窗口。确认后选择 `boji1334` 保存并重启 Codex 即可。</p>
+        </div>
+        <div class="en">
+          <h1>One-click Codex setup for CC Switch</h1>
+          <p class="lead">Enter the API Key I provide, click import, and your system will open the CC Switch confirmation window. Confirm it, select `boji1334`, save, and restart Codex.</p>
+        </div>
+
+        <div class="setup-card">
+          <label for="apiKey"><span class="zh">API Key</span><span class="en">API Key</span></label>
+          <div class="input-row">
+            <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-..." aria-label="API Key">
+            <button class="icon-button" type="button" id="toggleKey"><span class="zh">显示</span><span class="en">Show</span></button>
+          </div>
+
+          <div class="actions">
+            <button class="button" type="button" id="importBtn"><span class="zh">一键导入到 CC Switch</span><span class="en">Import to CC Switch</span></button>
+            <button class="button secondary" type="button" id="copyBtn"><span class="zh">复制导入链接</span><span class="en">Copy link</span></button>
+          </div>
+
+          <div class="status" id="status" role="status"></div>
+
+          <div class="meta-grid">
+            <div class="meta">
+              <span><span class="zh">供应商</span><span class="en">Provider</span></span>
+              <strong>boji1334</strong>
+            </div>
+            <div class="meta">
+              <span><span class="zh">模型</span><span class="en">Model</span></span>
+              <strong>gpt-5-codex</strong>
+            </div>
+            <div class="meta">
+              <span><span class="zh">接口地址</span><span class="en">Endpoint</span></span>
+              <strong>http://47.100.93.204:8080</strong>
+            </div>
+            <div class="meta">
+              <span><span class="zh">仓库</span><span class="en">Repository</span></span>
+              <strong>github.com/boji1334/cc-switch-codex-setup</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel side">
+        <div class="portrait" aria-hidden="true"></div>
+        <div class="side-body">
+          <h2><span class="zh">开始前</span><span class="en">Before You Start</span></h2>
+          <ol class="steps">
+            <li><span class="num">1</span><span class="zh">先安装 CC Switch；如果还没安装，点下面的下载入口。</span><span class="en">Install CC Switch first. Use the download link below if needed.</span></li>
+            <li><span class="num">2</span><span class="zh">输入 API Key，只会在本页生成导入链接，不会上传。</span><span class="en">Enter your API Key. This page only builds a local import link.</span></li>
+            <li><span class="num">3</span><span class="zh">确认导入后，重启 Codex 终端或 CLI。</span><span class="en">After confirming the import, restart your Codex terminal or CLI.</span></li>
+          </ol>
+          <div class="links">
+            <a href="https://github.com/farion1231/cc-switch/releases/latest" target="_blank" rel="noreferrer"><span class="zh">下载 CCS</span><span class="en">Download CCS</span></a>
+            <a href="https://github.com/boji1334/cc-switch-codex-setup/releases/latest" target="_blank" rel="noreferrer">Release</a>
+            <a href="https://github.com/boji1334/cc-switch-codex-setup" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <span class="zh">如果点击导入没有反应，通常是 CC Switch 还没安装，或 `ccswitch://` 协议没有注册成功。重新安装 CC Switch 后再试一次。</span>
+      <span class="en">If import does not open anything, CC Switch is likely not installed or the `ccswitch://` protocol is not registered. Reinstall CC Switch and try again.</span>
+    </footer>
+  </main>
+
+  <script>
+    const config = {
+      repo: "https://github.com/boji1334/cc-switch-codex-setup",
+      provider: "boji1334",
+      endpoint: "http://47.100.93.204:8080",
+      model: "gpt-5-codex"
+    };
+
+    const body = document.body;
+    const apiKey = document.getElementById("apiKey");
+    const statusBox = document.getElementById("status");
+    const importBtn = document.getElementById("importBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const toggleKey = document.getElementById("toggleKey");
+
+    const text = {
+      zh: {
+        empty: "请先输入 API Key。",
+        opened: "已经尝试打开 CC Switch。请在弹出的窗口里确认导入，然后保存配置并重启 Codex。",
+        copied: "导入链接已复制。注意：这个链接包含 API Key，请只发给可信设备。",
+        copyFailed: "浏览器不允许复制。你可以点击一键导入，或手动复制地址栏生成的链接。",
+        show: "显示",
+        hide: "隐藏"
+      },
+      en: {
+        empty: "Enter your API Key first.",
+        opened: "Tried to open CC Switch. Confirm the import, save the config, and restart Codex.",
+        copied: "Import link copied. It contains your API Key, so only use it on trusted devices.",
+        copyFailed: "The browser blocked clipboard access. Use the import button instead.",
+        show: "Show",
+        hide: "Hide"
+      }
+    };
+
+    function currentLang() {
+      return body.dataset.lang === "en" ? "en" : "zh";
+    }
+
+    function setStatus(message, tone = "success") {
+      statusBox.textContent = message;
+      statusBox.className = tone === "warn" ? "status warn" : "status";
+      statusBox.style.display = "block";
+    }
+
+    function buildLink() {
+      const key = apiKey.value.trim();
+      if (!key) {
+        setStatus(text[currentLang()].empty, "warn");
+        apiKey.focus();
+        return "";
+      }
+
+      const params = new URLSearchParams({
+        resource: "provider",
+        app: "codex",
+        name: config.provider,
+        endpoint: config.endpoint,
+        apiKey: key,
+        model: config.model,
+        homepage: config.endpoint,
+        enabled: "true"
+      });
+
+      return `ccswitch://v1/import?${params.toString()}`;
+    }
+
+    importBtn.addEventListener("click", () => {
+      const link = buildLink();
+      if (!link) return;
+      window.location.href = link;
+      setStatus(text[currentLang()].opened);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      const link = buildLink();
+      if (!link) return;
+      try {
+        await navigator.clipboard.writeText(link);
+        setStatus(text[currentLang()].copied);
+      } catch {
+        setStatus(text[currentLang()].copyFailed, "warn");
+      }
+    });
+
+    toggleKey.addEventListener("click", () => {
+      const lang = currentLang();
+      const showing = apiKey.type === "text";
+      apiKey.type = showing ? "password" : "text";
+      toggleKey.textContent = showing ? text[lang].show : text[lang].hide;
+    });
+
+    document.querySelectorAll("[data-set-lang]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const lang = button.dataset.setLang;
+        body.dataset.lang = lang;
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        document.querySelectorAll("[data-set-lang]").forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
+        toggleKey.textContent = apiKey.type === "text" ? text[lang].hide : text[lang].show;
+      });
+    });
+  </script>
+</body>
+</html>
