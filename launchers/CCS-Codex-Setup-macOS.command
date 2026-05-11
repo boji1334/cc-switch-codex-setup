@@ -8,8 +8,21 @@ echo
 
 if [ ! -d "/Applications/CC Switch.app" ]; then
   echo "没有检测到 /Applications/CC Switch.app。"
-  echo "即将打开 CC Switch 下载页面。安装完成后，请再次运行本文件。"
-  open "https://github.com/farion1231/cc-switch/releases/latest"
+  echo "正在下载官方最新版 macOS 安装包..."
+  url="$(curl -s https://api.github.com/repos/farion1231/cc-switch/releases/latest | grep -oE 'https://[^"]+CC-Switch-[^"]+macOS\.dmg' | head -n 1)"
+  if [ -z "$url" ]; then
+    echo "未找到 macOS.dmg，即将打开官方下载页面。"
+    open "https://github.com/farion1231/cc-switch/releases/latest"
+    echo
+    read "unused?按 Enter 退出..."
+    exit 1
+  fi
+  file="$HOME/Downloads/$(basename "$url")"
+  curl -L "$url" -o "$file"
+  echo "下载完成，正在打开安装包：$file"
+  open "$file"
+  echo
+  echo "请把 CC Switch 拖入 Applications 文件夹。安装完成后，再次运行本文件导入 Codex。"
   echo
   read "unused?按 Enter 退出..."
   exit 1

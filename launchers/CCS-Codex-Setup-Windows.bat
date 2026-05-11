@@ -8,11 +8,14 @@ echo CC Switch Codex 一键配置
 echo GitHub: https://github.com/boji1334/cc-switch-codex-setup
 echo.
 echo 请先确认已经安装 CC Switch。
-echo 如果没有安装，脚本会打开官方下载页面。
+echo 如果没有安装，脚本会自动下载并启动官方最新版安装包。
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path 'Registry::HKEY_CLASSES_ROOT\ccswitch')) { Start-Process 'https://github.com/farion1231/cc-switch/releases/latest'; Write-Host '未检测到 ccswitch:// 协议。请先安装 CC Switch，安装完成后再运行本文件。'; exit 2 }"
-if errorlevel 2 goto end
+powershell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path 'Registry::HKEY_CLASSES_ROOT\ccswitch')) { Write-Host '未检测到 CC Switch，正在下载官方最新版 Windows 安装包...'; $release=Invoke-RestMethod 'https://api.github.com/repos/farion1231/cc-switch/releases/latest'; $asset=$release.assets | Where-Object { $_.name -like '*Windows.msi' } | Select-Object -First 1; if (-not $asset) { throw '未找到 Windows.msi，请手动打开 Releases 页面下载。' }; $out=Join-Path $env:TEMP $asset.name; Invoke-WebRequest $asset.browser_download_url -OutFile $out; Write-Host '下载完成，正在启动安装程序...'; Start-Process msiexec.exe -ArgumentList ('/i \"' + $out + '\"') -Wait; if (-not (Test-Path 'Registry::HKEY_CLASSES_ROOT\ccswitch')) { Start-Process 'https://github.com/farion1231/cc-switch/releases/latest'; Write-Host '安装后仍未检测到 ccswitch:// 协议。请确认 CC Switch 已安装，然后重新运行本文件。'; exit 2 } }"
+if errorlevel 1 (
+  echo 自动安装 CC Switch 没有完成，请先安装后再运行本文件。
+  goto end
+)
 
 set /p "CCS_API_KEY=请输入 API Key，然后按 Enter: "
 if "%CCS_API_KEY%"=="" (
