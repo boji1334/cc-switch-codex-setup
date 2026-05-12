@@ -74,7 +74,7 @@ else
   API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
 
-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334cat&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5.5&homepage=${API_ENDPOINT}&enabled=true"
+open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334cat&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
 
 echo
 echo "已尝试打开 CC Switch，请在弹窗里确认导入。"
