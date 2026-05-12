@@ -14,7 +14,7 @@
 
 页面现在也支持自动下载 CC Switch：点击「自动下载」会识别 Windows、macOS 或 Ubuntu，并下载官方最新版安装包。
 
-> 本教程用于在 Windows、macOS 和 Ubuntu 上安装 CC Switch，并把 Codex 配置到你自己的 sub2api 服务。默认供应商名称为 `boji1334`，sub2api 接口地址和 API Key 请按你自己的信息填写。
+> 本教程用于在 Windows、macOS 和 Ubuntu 上安装 CC Switch，并把 Codex 配置到你自己的 sub2api 服务。默认供应商名称为 `boji1334cat`，sub2api 接口地址和 API Key 请按你自己的信息填写。
 
 ## 一键配置
 
@@ -28,7 +28,7 @@
 $Endpoint = (Read-Host "请输入 sub2api 接口地址，例如 http://127.0.0.1:8080").Trim().TrimEnd("/")
 if ($Endpoint -notmatch "^https?://") { throw "sub2api 接口地址需要以 http:// 或 https:// 开头" }
 $Key = Read-Host "请输入 API Key"
-$Params = [ordered]@{ resource="provider"; app="codex"; name="boji1334"; endpoint=$Endpoint; apiKey=$Key; model="gpt-5-codex"; homepage=$Endpoint; enabled="true" }
+$Params = [ordered]@{ resource="provider"; app="codex"; name="boji1334cat"; endpoint=$Endpoint; apiKey=$Key; model="gpt-5.5"; homepage=$Endpoint; enabled="true" }
 $Query = ($Params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + "=" + [uri]::EscapeDataString([string]$_.Value) }) -join "&"
 Start-Process ("ccswitch://v1/import?" + $Query)
 ```
@@ -58,7 +58,7 @@ else
   API_ENDPOINT="${ENDPOINT//:/%3A}"
   API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
+open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334cat&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5.5&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
 ### Ubuntu
@@ -90,10 +90,10 @@ else
   API_ENDPOINT="${ENDPOINT//:/%3A}"
   API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
+xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334cat&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5.5&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
-执行后会弹出 CC Switch 的导入确认窗口，确认导入即可。导入完成后，在 CC Switch 的 Codex 页面选择 `boji1334`，点击启用或保存，然后重启 Codex 终端/CLI。
+执行后会弹出 CC Switch 的导入确认窗口，确认导入即可。导入完成后，在 CC Switch 的 Codex 页面选择 `boji1334cat`，点击启用或保存，然后重启 Codex 终端/CLI。
 
 以后如果要换供应商名称、接口地址或模型，也可以使用官方深度链接生成工具：
 
@@ -170,11 +170,11 @@ sudo apt install ./CC-Switch-*-Linux-*.deb
 
 | 字段 | 填写内容 |
 | --- | --- |
-| 供应商名称 | `boji1334` |
+| 供应商名称 | `boji1334cat` |
 | 官网链接 | 你的 sub2api 接口地址，例如 `http://127.0.0.1:8080` |
 | API Key | 我提供给你的 Key |
 | API 请求地址 | 你的 sub2api 接口地址，例如 `http://127.0.0.1:8080` |
-| 模型名称 | `gpt-5-codex` |
+| 模型名称 | `gpt-5.5` |
 
 `完整 URL` 开关保持关闭即可，除非你拿到的是已经包含 `/v1/responses` 的完整请求地址。
 
@@ -191,13 +191,13 @@ sudo apt install ./CC-Switch-*-Linux-*.deb
 ### config.toml
 
 ```toml
-model_provider = "boji1334"
-model = "gpt-5-codex"
+model_provider = "boji1334cat"
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 disable_response_storage = true
 
-[model_providers.boji1334]
-name = "boji1334"
+[model_providers.boji1334cat]
+name = "boji1334cat"
 base_url = "你的 sub2api 接口地址"
 wire_api = "responses"
 requires_openai_auth = true
@@ -208,7 +208,7 @@ requires_openai_auth = true
 ## 验证是否成功
 
 1. 保存供应商配置。
-2. 在 CC Switch 的 Codex 页面启用 `boji1334`。
+2. 在 CC Switch 的 Codex 页面启用 `boji1334cat`。
 3. 重启终端或 Codex CLI。
 4. 运行一次 Codex，确认能正常请求模型。
 
@@ -238,7 +238,7 @@ Open the page, enter your sub2api endpoint and API Key, click `Import to CC Swit
 
 The page can also download CC Switch for you: click `Auto Download` and it will fetch the latest official installer for Windows, macOS, or Ubuntu.
 
-> This guide helps you install CC Switch on Windows, macOS, or Ubuntu and configure Codex with your own sub2api service. The default provider name is `boji1334`. Fill in your own sub2api endpoint and API Key.
+> This guide helps you install CC Switch on Windows, macOS, or Ubuntu and configure Codex with your own sub2api service. The default provider name is `boji1334cat`. Fill in your own sub2api endpoint and API Key.
 
 ## One-Command Setup
 
@@ -252,7 +252,7 @@ Open PowerShell and run:
 $Endpoint = (Read-Host "Enter sub2api endpoint, for example http://127.0.0.1:8080").Trim().TrimEnd("/")
 if ($Endpoint -notmatch "^https?://") { throw "The sub2api endpoint must start with http:// or https://" }
 $Key = Read-Host "Enter API Key"
-$Params = [ordered]@{ resource="provider"; app="codex"; name="boji1334"; endpoint=$Endpoint; apiKey=$Key; model="gpt-5-codex"; homepage=$Endpoint; enabled="true" }
+$Params = [ordered]@{ resource="provider"; app="codex"; name="boji1334cat"; endpoint=$Endpoint; apiKey=$Key; model="gpt-5.5"; homepage=$Endpoint; enabled="true" }
 $Query = ($Params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + "=" + [uri]::EscapeDataString([string]$_.Value) }) -join "&"
 Start-Process ("ccswitch://v1/import?" + $Query)
 ```
@@ -282,7 +282,7 @@ else
   API_ENDPOINT="${ENDPOINT//:/%3A}"
   API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
+open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334cat&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5.5&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
 ### Ubuntu
@@ -314,10 +314,10 @@ else
   API_ENDPOINT="${ENDPOINT//:/%3A}"
   API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
+xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334cat&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5.5&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
-After the confirmation window opens, confirm the import. Then select `boji1334` in the Codex page, enable or save it, and restart your Codex terminal/CLI.
+After the confirmation window opens, confirm the import. Then select `boji1334cat` in the Codex page, enable or save it, and restart your Codex terminal/CLI.
 
 If you need to change the provider name, endpoint, or model later, you can also use the official deep link generator:
 
@@ -392,11 +392,11 @@ If the one-command import does not open, add the provider manually.
 
 | Field | Value |
 | --- | --- |
-| Provider Name | `boji1334` |
+| Provider Name | `boji1334cat` |
 | Website | Your sub2api endpoint, for example `http://127.0.0.1:8080` |
 | API Key | The Key I provide |
 | API Endpoint | Your sub2api endpoint, for example `http://127.0.0.1:8080` |
-| Model | `gpt-5-codex` |
+| Model | `gpt-5.5` |
 
 Keep the `Full URL` toggle off unless your endpoint already includes `/v1/responses`.
 
@@ -411,13 +411,13 @@ Keep the `Full URL` toggle off unless your endpoint already includes `/v1/respon
 ### config.toml
 
 ```toml
-model_provider = "boji1334"
-model = "gpt-5-codex"
+model_provider = "boji1334cat"
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 disable_response_storage = true
 
-[model_providers.boji1334]
-name = "boji1334"
+[model_providers.boji1334cat]
+name = "boji1334cat"
 base_url = "your sub2api endpoint"
 wire_api = "responses"
 requires_openai_auth = true
@@ -428,7 +428,7 @@ If you change the provider name, make sure `model_provider` and `[model_provider
 ## Verify
 
 1. Save the provider.
-2. Enable `boji1334` on the Codex page.
+2. Enable `boji1334cat` on the Codex page.
 3. Restart your terminal or Codex CLI.
 4. Run Codex once and confirm it can request the model normally.
 
