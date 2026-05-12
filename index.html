@@ -4,8 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CC Switch Codex 一键配置</title>
+  <link rel="icon" href="assets/avatar.jpg">
   <meta property="og:title" content="CC Switch Codex 一键配置">
   <meta property="og:description" content="先下载 CC Switch，再输入 sub2api 地址和 API Key，一键导入 Codex 配置。">
+  <meta property="og:image" content="https://raw.githubusercontent.com/boji1334/cc-switch-codex-setup/main/assets/avatar.jpg">
   <style>
     :root {
       color-scheme: light;
@@ -68,18 +70,24 @@
       min-width: 0;
     }
 
-    .mark {
-      display: grid;
-      place-items: center;
+    .mark-link {
       width: 44px;
       height: 44px;
       border-radius: 8px;
-      color: white;
-      background: var(--ink);
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing: 0;
+      overflow: hidden;
+      box-shadow: 0 8px 18px rgba(23, 32, 51, 0.14);
       flex: 0 0 auto;
+    }
+
+    .mark-link:hover {
+      text-decoration: none;
+    }
+
+    .mark {
+      display: block;
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
     }
 
     .brand-title {
@@ -362,6 +370,23 @@
       font-size: 14px;
     }
 
+    .repo-card {
+      display: block;
+      color: var(--ink);
+      transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .repo-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 10px 24px rgba(22, 104, 227, 0.12);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+
+    .repo-card strong {
+      color: var(--ink);
+    }
+
     .footer {
       margin-top: 16px;
       padding: 16px 18px;
@@ -407,7 +432,9 @@
   <main class="shell">
     <header class="topbar">
       <div class="brand">
-        <div class="mark">CCS</div>
+        <a class="mark-link" href="https://github.com/boji1334/cc-switch-codex-setup" target="_blank" rel="noreferrer" aria-label="Open GitHub repository">
+          <img class="mark" src="assets/avatar.jpg" alt="CC Switch Codex Setup">
+        </a>
         <div>
           <div class="brand-title">CC Switch Codex Setup</div>
           <a class="brand-link" href="https://github.com/boji1334/cc-switch-codex-setup" target="_blank" rel="noreferrer">github.com/boji1334/cc-switch-codex-setup</a>
@@ -487,10 +514,10 @@
           <span><span class="zh">接口地址</span><span class="en">Endpoint</span></span>
           <strong id="endpointPreview"><span class="zh">请填写 sub2api 地址</span><span class="en">Enter your sub2api endpoint</span></strong>
         </div>
-        <div class="meta">
+        <a class="meta repo-card" href="https://github.com/boji1334/cc-switch-codex-setup" target="_blank" rel="noreferrer">
           <span><span class="zh">仓库</span><span class="en">Repository</span></span>
           <strong>github.com/boji1334/cc-switch-codex-setup</strong>
-        </div>
+        </a>
       </div>
     </section>
 
