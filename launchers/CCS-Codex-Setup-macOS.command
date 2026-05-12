@@ -28,6 +28,27 @@ if [ ! -d "/Applications/CC Switch.app" ]; then
   exit 1
 fi
 
+printf "请输入 sub2api 接口地址，例如 http://127.0.0.1:8080: "
+IFS= read -r ENDPOINT
+
+if [ -z "$ENDPOINT" ]; then
+  echo "sub2api 接口地址不能为空。"
+  echo
+  read "unused?按 Enter 退出..."
+  exit 1
+fi
+
+while [[ "$ENDPOINT" == */ ]]; do
+  ENDPOINT="${ENDPOINT%/}"
+done
+
+if [[ "$ENDPOINT" != http://* && "$ENDPOINT" != https://* ]]; then
+  echo "sub2api 接口地址需要以 http:// 或 https:// 开头。"
+  echo
+  read "unused?按 Enter 退出..."
+  exit 1
+fi
+
 printf "请输入 API Key: "
 stty -echo
 IFS= read -r KEY
@@ -43,13 +64,17 @@ fi
 
 if command -v python3 >/dev/null 2>&1; then
   API_KEY="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$KEY")"
+  API_ENDPOINT="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$ENDPOINT")"
 elif command -v node >/dev/null 2>&1; then
   API_KEY="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$KEY")"
+  API_ENDPOINT="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$ENDPOINT")"
 else
   API_KEY="$KEY"
+  API_ENDPOINT="${ENDPOINT//:/%3A}"
+  API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
 
-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=${API_KEY}&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"
+open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
 
 echo
 echo "已尝试打开 CC Switch，请在弹窗里确认导入。"

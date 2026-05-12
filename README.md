@@ -10,22 +10,27 @@
 - Release 下载版：<https://github.com/boji1334/cc-switch-codex-setup/releases/latest>
 - GitHub 仓库：<https://github.com/boji1334/cc-switch-codex-setup>
 
-打开页面后输入 API Key，点击「一键导入到 CC Switch」，确认导入并重启 Codex 即可。
+打开页面后输入你的 sub2api 接口地址和 API Key，点击「一键导入到 CC Switch」，确认导入并重启 Codex 即可。
 
 页面现在也支持自动下载 CC Switch：点击「自动下载」会识别 Windows、macOS 或 Ubuntu，并下载官方最新版安装包。
 
-> 本教程用于在 Windows、macOS 和 Ubuntu 上安装 CC Switch，并把 Codex 配置到指定 API 服务。默认供应商名称为 `boji1334`，API Key 请填写我单独提供给你的 Key。
+> 本教程用于在 Windows、macOS 和 Ubuntu 上安装 CC Switch，并把 Codex 配置到你自己的 sub2api 服务。默认供应商名称为 `boji1334`，sub2api 接口地址和 API Key 请按你自己的信息填写。
 
 ## 一键配置
 
-如果你已经安装好 CC Switch，可以直接执行下面对应系统的命令。命令会让你输入 API Key，然后自动打开 CC Switch 的导入确认窗口。
+如果你已经安装好 CC Switch，可以直接执行下面对应系统的命令。命令会让你输入 sub2api 接口地址和 API Key，然后自动打开 CC Switch 的导入确认窗口。
 
 ### Windows
 
 打开 PowerShell，粘贴执行：
 
 ```powershell
-$Key = Read-Host "请输入 API Key"; $EncodedKey = [uri]::EscapeDataString($Key); $Url = "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=$EncodedKey&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"; Start-Process $Url
+$Endpoint = (Read-Host "请输入 sub2api 接口地址，例如 http://127.0.0.1:8080").Trim().TrimEnd("/")
+if ($Endpoint -notmatch "^https?://") { throw "sub2api 接口地址需要以 http:// 或 https:// 开头" }
+$Key = Read-Host "请输入 API Key"
+$Params = [ordered]@{ resource="provider"; app="codex"; name="boji1334"; endpoint=$Endpoint; apiKey=$Key; model="gpt-5-codex"; homepage=$Endpoint; enabled="true" }
+$Query = ($Params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + "=" + [uri]::EscapeDataString([string]$_.Value) }) -join "&"
+Start-Process ("ccswitch://v1/import?" + $Query)
 ```
 
 ### macOS
@@ -33,6 +38,10 @@ $Key = Read-Host "请输入 API Key"; $EncodedKey = [uri]::EscapeDataString($Key
 打开 Terminal，粘贴执行：
 
 ```bash
+printf "请输入 sub2api 接口地址，例如 http://127.0.0.1:8080: "
+IFS= read -r ENDPOINT
+while [ "${ENDPOINT%/}" != "$ENDPOINT" ]; do ENDPOINT="${ENDPOINT%/}"; done
+case "$ENDPOINT" in http://*|https://*) ;; *) echo "sub2api 接口地址需要以 http:// 或 https:// 开头"; exit 1 ;; esac
 printf "请输入 API Key: "
 stty -echo
 IFS= read -r KEY
@@ -40,12 +49,16 @@ stty echo
 echo
 if command -v python3 >/dev/null 2>&1; then
   API_KEY="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$KEY")"
+  API_ENDPOINT="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$ENDPOINT")"
 elif command -v node >/dev/null 2>&1; then
   API_KEY="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$KEY")"
+  API_ENDPOINT="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$ENDPOINT")"
 else
   API_KEY="$KEY"
+  API_ENDPOINT="${ENDPOINT//:/%3A}"
+  API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=${API_KEY}&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"
+open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
 ### Ubuntu
@@ -57,6 +70,10 @@ if ! command -v xdg-open >/dev/null 2>&1; then
   echo "缺少 xdg-open，请先执行：sudo apt install -y xdg-utils"
   exit 1
 fi
+printf "请输入 sub2api 接口地址，例如 http://127.0.0.1:8080: "
+IFS= read -r ENDPOINT
+while [ "${ENDPOINT%/}" != "$ENDPOINT" ]; do ENDPOINT="${ENDPOINT%/}"; done
+case "$ENDPOINT" in http://*|https://*) ;; *) echo "sub2api 接口地址需要以 http:// 或 https:// 开头"; exit 1 ;; esac
 printf "请输入 API Key: "
 stty -echo
 IFS= read -r KEY
@@ -64,12 +81,16 @@ stty echo
 echo
 if command -v python3 >/dev/null 2>&1; then
   API_KEY="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$KEY")"
+  API_ENDPOINT="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$ENDPOINT")"
 elif command -v node >/dev/null 2>&1; then
   API_KEY="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$KEY")"
+  API_ENDPOINT="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$ENDPOINT")"
 else
   API_KEY="$KEY"
+  API_ENDPOINT="${ENDPOINT//:/%3A}"
+  API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=${API_KEY}&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"
+xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
 执行后会弹出 CC Switch 的导入确认窗口，确认导入即可。导入完成后，在 CC Switch 的 Codex 页面选择 `boji1334`，点击启用或保存，然后重启 Codex 终端/CLI。
@@ -150,9 +171,9 @@ sudo apt install ./CC-Switch-*-Linux-*.deb
 | 字段 | 填写内容 |
 | --- | --- |
 | 供应商名称 | `boji1334` |
-| 官网链接 | `http://47.100.93.204:8080` |
+| 官网链接 | 你的 sub2api 接口地址，例如 `http://127.0.0.1:8080` |
 | API Key | 我提供给你的 Key |
-| API 请求地址 | `http://47.100.93.204:8080` |
+| API 请求地址 | 你的 sub2api 接口地址，例如 `http://127.0.0.1:8080` |
 | 模型名称 | `gpt-5-codex` |
 
 `完整 URL` 开关保持关闭即可，除非你拿到的是已经包含 `/v1/responses` 的完整请求地址。
@@ -177,12 +198,12 @@ disable_response_storage = true
 
 [model_providers.boji1334]
 name = "boji1334"
-base_url = "http://47.100.93.204:8080"
+base_url = "你的 sub2api 接口地址"
 wire_api = "responses"
 requires_openai_auth = true
 ```
 
-如果你修改了供应商名称，需要同时修改 `model_provider` 和 `[model_providers.xxx]` 中的名称，保持完全一致。
+如果你修改了供应商名称，需要同时修改 `model_provider` 和 `[model_providers.xxx]` 中的名称，保持完全一致。`base_url` 填你自己的 sub2api 地址。
 
 ## 验证是否成功
 
@@ -191,7 +212,7 @@ requires_openai_auth = true
 3. 重启终端或 Codex CLI。
 4. 运行一次 Codex，确认能正常请求模型。
 
-如果提示 Key 错误，请检查 API Key 是否复制完整；如果提示连接失败，请检查网络是否能访问 `http://47.100.93.204:8080`。
+如果提示 Key 错误，请检查 API Key 是否复制完整；如果提示连接失败，请检查网络是否能访问你填写的 sub2api 地址。
 
 ## 小提示
 
@@ -213,22 +234,27 @@ The easiest option is the graphical one-click setup page:
 - Release download: <https://github.com/boji1334/cc-switch-codex-setup/releases/latest>
 - GitHub repository: <https://github.com/boji1334/cc-switch-codex-setup>
 
-Open the page, enter your API Key, click `Import to CC Switch`, confirm the import, and restart Codex.
+Open the page, enter your sub2api endpoint and API Key, click `Import to CC Switch`, confirm the import, and restart Codex.
 
 The page can also download CC Switch for you: click `Auto Download` and it will fetch the latest official installer for Windows, macOS, or Ubuntu.
 
-> This guide helps you install CC Switch on Windows, macOS, or Ubuntu and configure Codex with the provided API service. The default provider name is `boji1334`. Use the API Key I provide separately.
+> This guide helps you install CC Switch on Windows, macOS, or Ubuntu and configure Codex with your own sub2api service. The default provider name is `boji1334`. Fill in your own sub2api endpoint and API Key.
 
 ## One-Command Setup
 
-If CC Switch is already installed, run the command for your operating system. It will ask for your API Key and open the CC Switch import confirmation window automatically.
+If CC Switch is already installed, run the command for your operating system. It will ask for your sub2api endpoint and API Key, then open the CC Switch import confirmation window automatically.
 
 ### Windows
 
 Open PowerShell and run:
 
 ```powershell
-$Key = Read-Host "Enter API Key"; $EncodedKey = [uri]::EscapeDataString($Key); $Url = "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=$EncodedKey&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"; Start-Process $Url
+$Endpoint = (Read-Host "Enter sub2api endpoint, for example http://127.0.0.1:8080").Trim().TrimEnd("/")
+if ($Endpoint -notmatch "^https?://") { throw "The sub2api endpoint must start with http:// or https://" }
+$Key = Read-Host "Enter API Key"
+$Params = [ordered]@{ resource="provider"; app="codex"; name="boji1334"; endpoint=$Endpoint; apiKey=$Key; model="gpt-5-codex"; homepage=$Endpoint; enabled="true" }
+$Query = ($Params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + "=" + [uri]::EscapeDataString([string]$_.Value) }) -join "&"
+Start-Process ("ccswitch://v1/import?" + $Query)
 ```
 
 ### macOS
@@ -236,6 +262,10 @@ $Key = Read-Host "Enter API Key"; $EncodedKey = [uri]::EscapeDataString($Key); $
 Open Terminal and run:
 
 ```bash
+printf "Enter sub2api endpoint, for example http://127.0.0.1:8080: "
+IFS= read -r ENDPOINT
+while [ "${ENDPOINT%/}" != "$ENDPOINT" ]; do ENDPOINT="${ENDPOINT%/}"; done
+case "$ENDPOINT" in http://*|https://*) ;; *) echo "The sub2api endpoint must start with http:// or https://"; exit 1 ;; esac
 printf "Enter API Key: "
 stty -echo
 IFS= read -r KEY
@@ -243,12 +273,16 @@ stty echo
 echo
 if command -v python3 >/dev/null 2>&1; then
   API_KEY="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$KEY")"
+  API_ENDPOINT="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$ENDPOINT")"
 elif command -v node >/dev/null 2>&1; then
   API_KEY="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$KEY")"
+  API_ENDPOINT="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$ENDPOINT")"
 else
   API_KEY="$KEY"
+  API_ENDPOINT="${ENDPOINT//:/%3A}"
+  API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=${API_KEY}&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"
+open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
 ### Ubuntu
@@ -260,6 +294,10 @@ if ! command -v xdg-open >/dev/null 2>&1; then
   echo "Missing xdg-open. Run first: sudo apt install -y xdg-utils"
   exit 1
 fi
+printf "Enter sub2api endpoint, for example http://127.0.0.1:8080: "
+IFS= read -r ENDPOINT
+while [ "${ENDPOINT%/}" != "$ENDPOINT" ]; do ENDPOINT="${ENDPOINT%/}"; done
+case "$ENDPOINT" in http://*|https://*) ;; *) echo "The sub2api endpoint must start with http:// or https://"; exit 1 ;; esac
 printf "Enter API Key: "
 stty -echo
 IFS= read -r KEY
@@ -267,12 +305,16 @@ stty echo
 echo
 if command -v python3 >/dev/null 2>&1; then
   API_KEY="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$KEY")"
+  API_ENDPOINT="$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$ENDPOINT")"
 elif command -v node >/dev/null 2>&1; then
   API_KEY="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$KEY")"
+  API_ENDPOINT="$(node -e 'process.stdout.write(encodeURIComponent(process.argv[1]))' "$ENDPOINT")"
 else
   API_KEY="$KEY"
+  API_ENDPOINT="${ENDPOINT//:/%3A}"
+  API_ENDPOINT="${API_ENDPOINT//\//%2F}"
 fi
-xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=http%3A%2F%2F47.100.93.204%3A8080&apiKey=${API_KEY}&model=gpt-5-codex&homepage=http%3A%2F%2F47.100.93.204%3A8080&enabled=true"
+xdg-open "ccswitch://v1/import?resource=provider&app=codex&name=boji1334&endpoint=${API_ENDPOINT}&apiKey=${API_KEY}&model=gpt-5-codex&homepage=${API_ENDPOINT}&enabled=true"
 ```
 
 After the confirmation window opens, confirm the import. Then select `boji1334` in the Codex page, enable or save it, and restart your Codex terminal/CLI.
@@ -351,9 +393,9 @@ If the one-command import does not open, add the provider manually.
 | Field | Value |
 | --- | --- |
 | Provider Name | `boji1334` |
-| Website | `http://47.100.93.204:8080` |
+| Website | Your sub2api endpoint, for example `http://127.0.0.1:8080` |
 | API Key | The Key I provide |
-| API Endpoint | `http://47.100.93.204:8080` |
+| API Endpoint | Your sub2api endpoint, for example `http://127.0.0.1:8080` |
 | Model | `gpt-5-codex` |
 
 Keep the `Full URL` toggle off unless your endpoint already includes `/v1/responses`.
@@ -376,12 +418,12 @@ disable_response_storage = true
 
 [model_providers.boji1334]
 name = "boji1334"
-base_url = "http://47.100.93.204:8080"
+base_url = "your sub2api endpoint"
 wire_api = "responses"
 requires_openai_auth = true
 ```
 
-If you change the provider name, make sure `model_provider` and `[model_providers.xxx]` match exactly.
+If you change the provider name, make sure `model_provider` and `[model_providers.xxx]` match exactly. Set `base_url` to your own sub2api endpoint.
 
 ## Verify
 
@@ -390,7 +432,7 @@ If you change the provider name, make sure `model_provider` and `[model_provider
 3. Restart your terminal or Codex CLI.
 4. Run Codex once and confirm it can request the model normally.
 
-If you see an API Key error, check whether the Key was copied completely. If you see a connection error, check whether your network can access `http://47.100.93.204:8080`.
+If you see an API Key error, check whether the Key was copied completely. If you see a connection error, check whether your network can access the sub2api endpoint you entered.
 
 ## Note
 

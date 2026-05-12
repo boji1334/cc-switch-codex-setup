@@ -17,13 +17,20 @@ if errorlevel 1 (
   goto end
 )
 
+set /p "CCS_ENDPOINT=请输入 sub2api 接口地址，例如 http://127.0.0.1:8080，然后按 Enter: "
+if "%CCS_ENDPOINT%"=="" (
+  echo sub2api 接口地址不能为空。
+  goto end
+)
+
 set /p "CCS_API_KEY=请输入 API Key，然后按 Enter: "
 if "%CCS_API_KEY%"=="" (
   echo API Key 不能为空。
   goto end
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$key=$env:CCS_API_KEY; $params=[ordered]@{resource='provider';app='codex';name='boji1334';endpoint='http://47.100.93.204:8080';apiKey=$key;model='gpt-5-codex';homepage='http://47.100.93.204:8080';enabled='true'}; $query=($params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value) }) -join '&'; Start-Process ('ccswitch://v1/import?' + $query)"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$key=$env:CCS_API_KEY; $endpoint=($env:CCS_ENDPOINT).Trim().TrimEnd('/'); if ($endpoint -notmatch '^https?://') { Write-Host 'sub2api 接口地址需要以 http:// 或 https:// 开头。'; exit 2 }; $params=[ordered]@{resource='provider';app='codex';name='boji1334';endpoint=$endpoint;apiKey=$key;model='gpt-5-codex';homepage=$endpoint;enabled='true'}; $query=($params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value) }) -join '&'; Start-Process ('ccswitch://v1/import?' + $query)"
+if errorlevel 1 goto end
 
 echo.
 echo 已尝试打开 CC Switch，请在弹窗里确认导入。

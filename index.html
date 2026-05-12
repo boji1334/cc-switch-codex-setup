@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CC Switch Codex 一键配置</title>
   <meta property="og:title" content="CC Switch Codex 一键配置">
-  <meta property="og:description" content="先下载 CC Switch，再输入 API Key，一键导入 Codex 配置。">
+  <meta property="og:description" content="先下载 CC Switch，再输入 sub2api 地址和 API Key，一键导入 Codex 配置。">
   <style>
     :root {
       color-scheme: light;
@@ -260,6 +260,11 @@
       font-weight: 850;
     }
 
+    .step input + label,
+    .input-row + label {
+      margin-top: 14px;
+    }
+
     .input-row {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -417,11 +422,11 @@
     <section class="panel main">
       <div class="zh">
         <h1>先装 CC Switch，再一键导入 Codex</h1>
-        <p class="lead">给完全没经验的用户准备：先点下载按钮安装 CC Switch，再输入 API Key 导入配置。整个页面不会上传你的 Key，只会在本地生成 `ccswitch://` 导入链接。</p>
+        <p class="lead">给完全没经验的用户准备：先点下载按钮安装 CC Switch，再输入 sub2api 地址和 API Key 导入配置。整个页面不会上传你的信息，只会在本地生成 `ccswitch://` 导入链接。</p>
       </div>
       <div class="en">
         <h1>Install CC Switch, then import Codex in one click</h1>
-        <p class="lead">Made for beginners: download and install CC Switch first, then enter your API Key to import the config. This page does not upload your Key; it only builds a local `ccswitch://` import link.</p>
+        <p class="lead">Made for beginners: download and install CC Switch first, then enter your sub2api endpoint and API Key to import the config. This page does not upload your data; it only builds a local `ccswitch://` import link.</p>
       </div>
 
       <div class="workflow">
@@ -448,8 +453,11 @@
             <span class="num">2</span>
             <h2><span class="zh">导入 Codex 配置</span><span class="en">Import Codex Config</span></h2>
           </div>
-          <p class="hint zh">安装好 CC Switch 后，输入我提供给你的 API Key，点击导入。系统会弹出 CC Switch 确认窗口。</p>
-          <p class="hint en">After CC Switch is installed, enter the API Key I provide and click import. Your system will open the CC Switch confirmation window.</p>
+          <p class="hint zh">安装好 CC Switch 后，输入你的 sub2api 接口地址和 API Key，点击导入。系统会弹出 CC Switch 确认窗口。</p>
+          <p class="hint en">After CC Switch is installed, enter your sub2api endpoint and API Key, then click import. Your system will open the CC Switch confirmation window.</p>
+
+          <label for="endpointInput"><span class="zh">sub2api 接口地址</span><span class="en">sub2api Endpoint</span></label>
+          <input id="endpointInput" type="url" autocomplete="off" spellcheck="false" placeholder="http://你的地址:端口" aria-label="sub2api Endpoint">
 
           <label for="apiKey">API Key</label>
           <div class="input-row">
@@ -477,7 +485,7 @@
         </div>
         <div class="meta">
           <span><span class="zh">接口地址</span><span class="en">Endpoint</span></span>
-          <strong>http://47.100.93.204:8080</strong>
+          <strong id="endpointPreview"><span class="zh">请填写 sub2api 地址</span><span class="en">Enter your sub2api endpoint</span></strong>
         </div>
         <div class="meta">
           <span><span class="zh">仓库</span><span class="en">Repository</span></span>
@@ -495,12 +503,13 @@
   <script>
     const config = {
       provider: "boji1334",
-      endpoint: "http://47.100.93.204:8080",
       model: "gpt-5-codex",
       releaseApi: "https://api.github.com/repos/farion1231/cc-switch/releases/latest"
     };
 
     const body = document.body;
+    const endpointInput = document.getElementById("endpointInput");
+    const endpointPreview = document.getElementById("endpointPreview");
     const apiKey = document.getElementById("apiKey");
     const statusBox = document.getElementById("status");
     const importBtn = document.getElementById("importBtn");
@@ -509,6 +518,8 @@
 
     const text = {
       zh: {
+        emptyEndpoint: "请先输入 sub2api 接口地址。",
+        invalidEndpoint: "sub2api 接口地址需要以 http:// 或 https:// 开头。",
         empty: "请先输入 API Key。",
         opened: "已经尝试打开 CC Switch。请在弹窗里确认导入，保存配置，然后重启 Codex。",
         copied: "导入链接已复制。注意：链接包含 API Key，只建议在可信设备上使用。",
@@ -521,6 +532,8 @@
         unsupported: "没有识别出系统，请选择 Windows、macOS 或 Ubuntu 按钮。"
       },
       en: {
+        emptyEndpoint: "Enter your sub2api endpoint first.",
+        invalidEndpoint: "The sub2api endpoint must start with http:// or https://.",
         empty: "Enter your API Key first.",
         opened: "Tried to open CC Switch. Confirm the import, save the config, and restart Codex.",
         copied: "Import link copied. It contains your API Key, so only use it on trusted devices.",
@@ -542,6 +555,19 @@
       statusBox.textContent = message;
       statusBox.className = tone === "warn" ? "status warn" : tone === "danger" ? "status danger" : "status";
       statusBox.style.display = "block";
+    }
+
+    function normalizeEndpoint(value) {
+      return value.trim().replace(/\/+$/, "");
+    }
+
+    function updateEndpointPreview() {
+      const endpoint = normalizeEndpoint(endpointInput.value);
+      if (endpoint) {
+        endpointPreview.textContent = endpoint;
+      } else {
+        endpointPreview.innerHTML = body.dataset.lang === "en" ? "Enter your sub2api endpoint" : "请填写 sub2api 地址";
+      }
     }
 
     function detectPlatform() {
@@ -587,6 +613,18 @@
     }
 
     function buildLink() {
+      const endpoint = normalizeEndpoint(endpointInput.value);
+      if (!endpoint) {
+        setStatus(text[currentLang()].emptyEndpoint, "warn");
+        endpointInput.focus();
+        return "";
+      }
+      if (!/^https?:\/\//i.test(endpoint)) {
+        setStatus(text[currentLang()].invalidEndpoint, "warn");
+        endpointInput.focus();
+        return "";
+      }
+
       const key = apiKey.value.trim();
       if (!key) {
         setStatus(text[currentLang()].empty, "warn");
@@ -598,10 +636,10 @@
         resource: "provider",
         app: "codex",
         name: config.provider,
-        endpoint: config.endpoint,
+        endpoint,
         apiKey: key,
         model: config.model,
-        homepage: config.endpoint,
+        homepage: endpoint,
         enabled: "true"
       });
 
@@ -612,6 +650,8 @@
     document.querySelectorAll("[data-download]").forEach((button) => {
       button.addEventListener("click", () => downloadCcs(button.dataset.download));
     });
+
+    endpointInput.addEventListener("input", updateEndpointPreview);
 
     importBtn.addEventListener("click", () => {
       const link = buildLink();
@@ -647,6 +687,7 @@
           item.classList.toggle("active", item === button);
         });
         toggleKey.textContent = apiKey.type === "text" ? text[lang].hide : text[lang].show;
+        updateEndpointPreview();
       });
     });
   </script>
