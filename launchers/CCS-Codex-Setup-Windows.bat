@@ -29,7 +29,7 @@ if "%CCS_API_KEY%"=="" (
   goto end
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$key=$env:CCS_API_KEY; $endpoint=($env:CCS_ENDPOINT).Trim().TrimEnd('/'); if ($endpoint -notmatch '^https?://') { Write-Host 'sub2api 接口地址需要以 http:// 或 https:// 开头。'; exit 2 }; $params=[ordered]@{resource='provider';app='codex';name='boji1334cat';endpoint=$endpoint;apiKey=$key;model='gpt-5.3-codex';homepage=$endpoint;enabled='true'}; $query=($params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value) }) -join '&'; Start-Process ('ccswitch://v1/import?' + $query)"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$key=$env:CCS_API_KEY; $endpoint=($env:CCS_ENDPOINT).Trim().TrimEnd('/'); if ($endpoint -notmatch '^https?://') { Write-Host 'sub2api 接口地址需要以 http:// 或 https:// 开头。'; exit 2 }; $params=[ordered]@{resource='provider';app='codex';name='boji1334cat';endpoint=$endpoint;apiKey=$key;model='gpt-5.5';homepage=$endpoint;enabled='true'}; $query=($params.GetEnumerator() | ForEach-Object { [uri]::EscapeDataString($_.Key) + '=' + [uri]::EscapeDataString([string]$_.Value) }) -join '&'; Start-Process ('ccswitch://v1/import?' + $query)"
 if errorlevel 1 goto end
 
 echo.
